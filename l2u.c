@@ -1,0 +1,1 @@
+l2u   [f1 f2]            // convert lower case to upper case

@@ -1,0 +1,1 @@
+cp    src dest           // src may be a file or DIR
