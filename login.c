@@ -1,34 +1,95 @@
 char *tty;
+int stdin, stdout, stderr;
+
+int checkPassword(char user[], char passwd[]);
+int uid, gid;
+char uname[64], home[64], program[64]; 
 
 main(int argc, char *argv[])	// invoked by exec("login /dev/ttyxx")
 {
+	char user[64], passwd
 	tty = argv[1];
 
-	 1. close(0); close(1); close(2); // login process may run on different terms
+	close(0);
+	close(1);
+	close(2);
 
-	 2. // open its own tty as stdin, stdout, stderr
+	stdin = open(tty, READ);
+	stdout = open(tty, WRITE);
+	stderr = open(tty, ERROR);
 
-	 3. settty(tty);   // store tty string in PROC.tty[] for putc()
+	settty(tty);
 
-	  // NOW we can use printf, which calls putc() to our tty
-	  printf("KCLOGIN : open %s as stdin, stdout, stderr\n", tty);
+	printf("ABLOGIN : open %s as stdin, stdout, stderr\n", tty);
 
-	  signal(2,1);  // ignore Control-C interrupts so that 
+	signal(2,1);  // ignore Control-C interrupts so that 
 	                // Control-C KILLs other procs on this tty but not the main sh
 
-	  while(1){
-	    1. show login:           to stdout
-	    2. read user nmae        from stdin
-	    3. show passwd:
-	    4. read user passwd
+	while (1)
+	{
+		printf("Username: ");
+		gets(user);
+		printf("Password: ");
+		gets(passwd);
 
-	    5. verify user name and passwd from /etc/passwd file
+		// Need function to check password with /etc/passwd
+		if(checkPassword(user, passwd))
+		{
+			printf("Logging in as %s\n", user);
+			chuid(uid, gid);
+			chdir(home);
+			exec(program);
+		}
 
-	    6. if (user account valid){
-	          setuid to user uid.
-	          chdir to user HOME directory.
-	          exec to the program in users account
-	       }
-	       printf("login failed, try again\n");
-	  }
+		else
+		{
+			printf("Login failed.\n");
+		}
+	}
+}
+
+int checkPassword(char user[], char passwd[])
+{
+	int file = open("/etc/passwd", READ);
+	char *token, buffer[1024];
+
+	if (file == null)
+	{
+		printf("Cannot find password file\n");
+		return 0;
+	}
+
+	if (read(file, buffer, 1024) < 0)
+	{
+		printf("Cannot read password file\n");
+		return 0;
+	}
+
+	token = strtok(buffer, ":");
+	while(token != null)
+	{
+		if(!strcmp(token, user))
+		{
+			token = strtok(null, ":");
+
+			if(!strcmp(token, passwd))
+			{
+				uid = atoi(strtok(null, ":")); // get uid
+				gid = atoi(strtok(null, ":")); // get gid
+				strcpy(uname, strtok(null, ":")) // get user name
+				strcpy(home, strtok(null, ":")) // get user home directory
+				strcpy(program, strtok(null, ":")) // get user program
+
+				close(file);
+				return 1;
+			}
+		}
+
+		// If we make it here, not the user we are looking for
+		token = strtok(null, ":");
+	}
+
+	// Close file, no matter results
+	close(file);
+	return 0;
 }

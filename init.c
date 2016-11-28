@@ -5,10 +5,12 @@ int stdin, stdout;
 
 main(int argc, char *argv[])
 {
-  1. // open /dev/tty0 as 0 (READ) and 1 (WRTIE) in order to display messages
+  	 // open /dev/tty0 as 0 (READ) and 1 (WRITE) in order to display messages
+  	 stdin = open("/dev/tty0", 0);
+  	 stdout = open("/dev/tty1", 1);
 
-  2. // Now we can use printf, which calls putc(), which writes to stdout
-     printf("KCINIT : fork a login task on console\n"); 
+  	 // Now we can use printf, which calls putc(), which writes to stdout
+     printf("ABINIT : fork a login task on console\n"); 
      child = fork();
 
      if (child)
@@ -31,7 +33,12 @@ int parent()
 		pid = wait(&status);
 
 		if (pid == child)
-			fork another login child
+		{
+			// fork another login child
+			child = fork();
+			if (!child)
+				login();
+		}
 		else
 			print("INIT : buried an orphan child %d\n", pid);
 	}

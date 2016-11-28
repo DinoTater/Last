@@ -13,6 +13,10 @@
 
 #define BLOCK_SIZE 1024
 
+#define READ       0
+#define WRITE      1
+#define ERROR      2
+
 typedef unsigned long  u32;
 typedef unsigned short u16;
 typedef unsigned char  u8;
