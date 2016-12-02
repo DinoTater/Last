@@ -40,6 +40,6 @@ int parent()
 				login();
 		}
 		else
-			print("INIT : buried an orphan child %d\n", pid);
+			printf("INIT : buried an orphan child %d\n", pid);
 	}
 }
