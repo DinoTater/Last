@@ -1,56 +1,95 @@
+#include "helper.c"
 #include "ucode.c"
-#include "helper.h"
 
-int main(int argc, int argv[]) {
-	char buf[RDSIZE], *infile, *outfile;
-	int toFile = 0;
-	int n = 0, i = 0;
-	int ifd = STDIN;
-	int ofd = STDOUT;
+//l2u   [f1 f2]            // convert lower case to upper case
 
-	if(argc == 3) {
-		infile = argv[1];
-		outfile = argv[2];
-		ifd = open(infile, O_RDONLY);
-		close(ofd);
-		ofd = open(outfile, O_WRONLY | O_CREAT);
+int checkLower(char c);
 
-		if(ifd < 0) {
-			close(ofd);
-			gettty(buf);
-			open(buf, O_WRONLY);
-			printf("File does not exist.\n");
-			exit(1);
+int main(int argc, char *argv[])
+{
+	char buffer[1024], *tty, c;
+	int i, j, n, input, output, ttyout;
+
+	gettty(tty);
+	input = 0;
+	ttyout = open(tty, O_WRONLY);
+
+	if (argc == 2)
+	{
+		input = open(argv[1], O_RDONLY);
+		while(n = read(input, buffer, 1024)) {
+			for (i = 0; i < n; i++)
+			{
+				if(checkLower(buffer[i]) == 1)
+					buffer[i] = (buffer[i] - 32);
+				write(ttyout, buffer + i, 1);
+				if(buffer[i] == '\n')
+					write(ttyout, "\r", 1);
+			}
 		}
+		close(input);
+	}
 
-		if(ofd < 0) {
-			close(ofd);
-			gettty(buf);
-			open(buf, O_WRONLY);
-			printf("Could not open file).\n");
-			exit(1);
+	else if (argc == 3)
+	{
+		input = open(argv[1], O_RDONLY);
+		output = open(argv[2], O_WRONLY | O_CREAT | O_TRUNC);
+		while(n = read(input, buffer, 1024)) {
+			for (i = 0; i < n; i++)
+			{
+				if(checkLower(buffer[i]) == 1)
+					buffer[i] = (buffer[i] - 32);
+				write(output, buffer + i, 1);
+			}
+		}
+		close(input);
+		close(output);
+	}
+
+	else {
+		while(read(0, &c, 1)) {
+
+			if(c <= 'z' && c >= 'a') {
+				c = c - 32;
+			}
+			if(c == '\n') {
+				write(ttyout, "\r", 1);
+				buffer[i] = c;
+				write(1, &c, 1);
+				bzero(buffer, 1024);
+				i = 0;
+			}
+			else if(c == '\r') {
+				write(ttyout, "\r", 1);
+				buffer[i] = '\n';
+				c = '\n';
+				write(1, &c, 1);
+				write(ttyout, buffer, strlen(buffer));
+				write(ttyout, "\r", 1);
+				bzero(buffer, 1024);
+				i = 0;
+			}
+			else {
+				buffer[i] = c;
+				write(1, &c, 1);
+				i++;
+			}
 		}
 	}
 
-	toFile = OutputRedirected();
+	close(ttyout);
+	
+	exit(1);
+}
 
-	n = getLine(ifd, buf, RDSIZE);
+int checkLower(char c)
+{
+	int i;
+	//char *lowers = "abcdefghijklmnopqrstuvwxyz";
 
-	do {
-		for(i = 0; buf[i] != 0; i++) {
-			if(buf[i] == '\n' && !toFile) {
-				putc('\r');
-			}
+	if (c <= 'z' && c >= 'a')
+		return 1;
 
-			if(buf[i] >= 97) {
-				buf[i] -= 32;
-			}
-			putc(buf[i]);
-		}
-
-		n = getLine(ifd, buf, RDSIZE);
-	} while(strchr(buf, 4));
-	close(ifd);
-	close(ofd);
-	exit(0);
+	// We missed, must be upper
+	return 0;
 }

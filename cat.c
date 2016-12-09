@@ -1,90 +1,65 @@
-#include "helper.h"
+#include "helper.c"
 #include "ucode.c"
 
 int fd;
 void quit();
 
 int main(int argc, int *argv[]) {
-	char c, lc = 0;
+	char c, lc = 0, buf[1024], temp[128], *tty;
+	int i = 0, j = 0, n;
+	int stdin, stdout, ttyout;
+
+	stdin = 0;
+	stdout = 1;
+	gettty(tty);
+	ttyout = open(tty, O_WRONLY);
 
 	//read from stdin
-	if(argc == 1)
+	if(argc == 1) {
 		fd = 0;
-	// from file
-	else
-		fd = open(argv[1], O_RDONLY);
-
-	if(fd < 0) {
-		printf("Cannot find file\n");
-		exit(1);
 	}
 
-	while(read(fd, &c, 1) > 0) {
-		putc(c);
-
-		if (fd == 0) {
-			if (c == '\n' && (lc != '\n' && lc != '\r'))
-				putc('\r');
-		}
-
-		else {
-			if (c == '\r' && (lc != '\n' && lc != '\r')) {
-				putc('\n');
-				putc('\r');
+	if (argc > 1) {
+		for(j = 1; j < argc; j++) {
+			fd = open(argv[j], O_RDONLY);
+			if(fd < 0) {
+				printf("Cannot find file %s\n", argv[j]);
+				exit(1);
 			}
-		}
-
-		lc = c;
-	}
-
-	quit();
-
-	/*int i, n, toFile = 0, nbytes = 0;
-	int inputRedirected();
-	long bytes;
-	char *file, buf[RDSIZE];
-	char tbuf[32];
-	STAT filestat;
-
-	fd = STDIN;
-
-	toFile = OutputRedirected();
-
-	if(argc > 1) {
-		file = argv[1];
-		close(fd);
-		fd = open(file, O_RDONLY);
-		if(fd < 0) {
-			printf("FILE: %s DOES NOT EXIST\n", file);
-			exit(1);
+			while(n = read(fd, buf, 1024)) {
+				for (i = 0; i < n; i++) {
+					write(stdout, buf + i, 1);
+					if(buf[i] == '\n')
+						write(ttyout, "\r", 1);
+				}
+			}
+			close(stdin);
 		}
 	}
-
-	n = getLine(fd, buf, RDSIZE);
-	do {
-		for (i = 0; i < n; i++) {
-			if(buf[i] == '\n') {
-				if(!toFile) {
-					printf("\n\r");
-				}
-				else if(buf[i] == 4) {
-					quit();
-				}
-				else {
-					printf("%c", '\n');
-				}
+	else {
+		while(read(0, &c, 1)) {
+			if(c == '\n') {
+				write(ttyout, "\r", 1);
+				write(stdout, "\n", 1);
+			}
+			else if(c == '\r') {
+				write(ttyout, "\r", 1);
+				buf[i] = '\n';
+				c = '\n';
+				write(stdout, &c, 1);
+				write(ttyout, buf, strlen(buf));
+				write(ttyout, "\r", 1);
+				bzero(buf, 1024);
+				i = 0;
 			}
 			else {
-				printf("%c", buf[i]);
+				buf[i] = c;
+				write(stdout, &c, 1);
+				i++;
 			}
 		}
-		n = getLine(fd, buf, RDSIZE);
-	} while(!strchr(buf, 4));*/
+	}
 
-	quit();
-}
-
-void quit(){
-	close(fd);
-	exit(0);
+	close(ttyout);
+	exit(1);
 }

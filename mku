@@ -8,7 +8,7 @@ if [ $# \> 1 ]; then PARTITION=$2; fi
 
 VDISK=vdisk
 SECTOR=63
-#SECTOR=$(ptable vdisk $PARTITION)
+#SECTOR=$(./ptable vdisk $PARTITION)
 OFFSET=$(expr $SECTOR \* 512)
 
 echo partition=$PARTITION sector=$SECTOR offset=$OFFSET
@@ -23,6 +23,9 @@ bcc -c -ansi helper.c
 
 echo linking .......
 ld86 u.o $1.o helper.o mtxlib /usr/lib/bcc/libc.a 2> /dev/null 
+
+echo linking .......
+ld86 u.o $1.o mtxlib /usr/lib/bcc/libc.a 2> /dev/null
 
 echo copying $1 into $VDISK/bin/$1
 

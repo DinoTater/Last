@@ -1,10 +1,9 @@
-#include "type.h"
+#include "ucode.h"
 
 int pid;
 char line[64], pathname[32], i2[32], i3[32];
 char *name[16], components[64];
 int nk;
-
 #define EOF -1
 
 int getpid()

@@ -1,12 +1,15 @@
 #include "ucode.c"
-#include "helper.h"
+#include "helper.c"
 
 char *tty;
 char uname[32], pass[32];
 
+int checkPass();
+int runUser(char *line);
 
 int main(int argc, char *argv[]) {
 	char temp[32];
+
 	tty = argv[1];
 
 	close(0);
@@ -83,7 +86,7 @@ int runUser(char *line) {
 
 	chuid(uid, gid);
 	chdir(home);
-
+	
 	printf("Welcome %s.\n", name);
 
 	exec(program);

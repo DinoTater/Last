@@ -1,16 +1,19 @@
 #ifndef TYPE
 #define TYPE
 
+
 #define NULL       0
 #define NPROC     17
 #define NTHREAD   16
 #define SSIZE    512
 #define NSIG      16
+
 #define RDSIZE   256
 
 #define STDIN      0
 #define STDOUT	   1
 #define EOF       -1
+
 
 #define FREE       0   /* PROC status */
 #define READY      1 
@@ -20,7 +23,14 @@
 #define PAUSE      5
 
 #define BLOCK_SIZE 1024
+
 #define BLKSIZE 1024
+
+
+#define READ       0
+#define WRITE      1
+#define ERROR      2
+
 
 typedef unsigned long  u32;
 typedef unsigned short u16;
@@ -79,8 +89,7 @@ typedef struct ext2_super_block {
 	u32	s_reserved[206];	/* Padding to the end of the block */
 } SUPER;
 
-typedef struct ext2_group_desc
- {
+typedef struct ext2_group_desc {
 	u32	bg_block_bitmap;	/* Blocks bitmap block */
 	u32	bg_inode_bitmap;	/* Inodes bitmap block */
 	u32	bg_inode_table;		/* Inodes table block */
@@ -154,7 +163,11 @@ typedef struct Oft {
 /******************** KCW on MINODE *******************
  refCount = # of procs using this MINODE
  lock is a semaphore for exclusive access to this MINODE
+<<<<<<< HEAD
 							WHY lock? 
+=======
+              WHY lock? 
+>>>>>>> 51884eac3fc545cbf292bd6b266fec5b29c9bad1
  When a proc issues disk I/O on a MINODE, it may gets 
  blocked while waiting for disk completion interrupt =>
  another proc may find the same MINODE and proceed to 

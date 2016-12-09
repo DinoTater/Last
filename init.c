@@ -43,7 +43,7 @@ main(int argc, char *argv[])
      }
      else //Proc 2       
      {
-      printf("4\n");
+       printf("4\n");
        login(TTY0);
      }
 }

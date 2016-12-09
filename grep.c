@@ -1,11 +1,9 @@
 #include "ucode.c"
-#include "helper.h"
+#include "helper.c"
 
 int main(int argc, int *argv[]) {
 	char *pattern, *file, buf[RDSIZE];
-	int fd = STDIN, n = 0, i = 0, j = 0;
-
-	// NEED TO DEAL WITH STDIN BIZNIZ
+	int fd = STDIN, n = 0, i = 0, j = 0, toFile = 0;
 
 	if(argc < 2) {
 		printf("grep usage: grep pattern [filename]\n");
@@ -13,6 +11,7 @@ int main(int argc, int *argv[]) {
 	}
 	else if(argc == 2) {
 		pattern = argv[1];
+		fd = 0;
 	}
 	else if(argc == 3) {
 		pattern = argv[1];
@@ -25,10 +24,10 @@ int main(int argc, int *argv[]) {
 	}
 
 	while((n = getLine(fd, buf, RDSIZE)) > 0) {
-		i = strstr(buf, pattern);
-		if(i != NULL) {
+		
+		if(strstr(buf, pattern)) {
 			printf("%s\n", buf);
-			if(!toFile) {
+			if(fd == 0) {
 				putc('\r');
 			}
 		}

@@ -1,16 +1,12 @@
 #include "ucode.c"
-#include "helper.h"
+#include "helper.c"
 
 void copyFileToFile(char *src, char *dest);
-
-char *cat = "cat";
 
 int main(int argc, char *argv[]) {
 	char *src, *dest;
 	STAT *srcStat, *destStat;
 	int srcDir, destDir;
-
-	printf("CP YOU BASTARD!\n");
 
 	if(argc < 3) {
 		printf("ERROR: Usage: cp <src> <dest>\n");
@@ -19,15 +15,7 @@ int main(int argc, char *argv[]) {
 
 	src = argv[1];
 	dest = argv[2];
-	if(argv[3]) {
-		cat = argv[3];
-	}
-	stat(src, srcStat);
-	stat(dest, destStat);
-
-	srcDir = S_ISDIR(srcStat);
-	destDir = S_ISDIR(destStat);
-
+	
 	copyFileToFile(src, dest);
 
 	exit(0);
